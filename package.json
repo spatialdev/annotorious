@@ -1,0 +1,14 @@
+{
+  "author": "Colin Sullivan",
+  "name": "annotorius",
+  "version": "1.0.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spatialdev/annotorius.git"
+  },
+  "dependencies": {
+    "botkit": "jonchurch/botkit#multi-hears"
+  },
+  "devDependencies": {}
+}

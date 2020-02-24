@@ -26,7 +26,8 @@
 /** Hint/help popup **/
 
 .annotorious-hint-msg {
-  background-color:rgba(0,0,0,0.5);
+  display: none;
+  /* background-color:rgba(0,0,0,0.5);
   margin:4px;
   padding:8px 15px 8px 30px;
   font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
@@ -36,18 +37,19 @@
   border-radius:4px;
   -moz-border-radius:4px;
   -webkit-border-radius:4px;
-  -khtml-border-radius:4px;
+  -khtml-border-radius:4px; */
 }
 
 .annotorious-hint-icon {
-  position:absolute;
+  display: none;
+  /* position:absolute;
   top:6px;
   left: 5px;
   background:url('feather_icon.png');
   background-repeat:no-repeat;
   width:19px;
   height:22px;
-  margin:2px 4px 0px 6px;
+  margin:2px 4px 0px 6px; */
 }
 
 /** Popup **/
@@ -253,7 +255,8 @@
 }
 
 .annotorious-ol-hint {
-  line-height: normal;
+  display: none;
+  /* line-height: normal;
   font-family:Arial, Verdana, Sans;
   font-size:16px;
   color:#000;
@@ -263,11 +266,12 @@
   border-radius: 5px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
-  -khtml-border-radius: 5px;
+  -khtml-border-radius: 5px; */
 }
 
 .annotorious-ol-hint-secondary {
-  background-color:#fff000;
+  display: none;
+  /* background-color:#fff000; */
 }
 
 canvas {

@@ -8,7 +8,6 @@
     "url": "git+https://github.com/spatialdev/annotorius.git"
   },
   "dependencies": {
-    "botkit": "github:jonchurch/botkit#multi-hears"
   },
   "devDependencies": {},
   "description": "**CURRENTLY UNSUPPORTED**",

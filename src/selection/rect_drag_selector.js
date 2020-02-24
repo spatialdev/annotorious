@@ -17,7 +17,7 @@ annotorious.plugins.selection.RectDragSelector = function() { }
  */
 annotorious.plugins.selection.RectDragSelector.prototype.init = function(annotator, canvas) {
   /** @private **/
-  this._OUTLINE = '#000000';
+  this._OUTLINE = '#2e94ba';
 
   /** @private **/
   this._STROKE = '#ffffff';
@@ -26,10 +26,10 @@ annotorious.plugins.selection.RectDragSelector.prototype.init = function(annotat
   this._FILL = false;
   
   /** @private **/
-  this._HI_OUTLINE = '#000000';
+  this._HI_OUTLINE = '#2e94ba';
 
   /** @private **/
-  this._HI_STROKE = '#fff000';
+  this._HI_STROKE = '#2e94ba';
   
   /** @private **/
   this._HI_FILL = false;
@@ -44,7 +44,7 @@ annotorious.plugins.selection.RectDragSelector.prototype.init = function(annotat
   this._HI_OUTLINE_WIDTH = 1;
 
   /** @private **/
-  this._HI_STROKE_WIDTH = 1.2;
+  this._HI_STROKE_WIDTH = 3.5;
 	
   /** @private **/
   this._canvas = canvas;
@@ -54,7 +54,7 @@ annotorious.plugins.selection.RectDragSelector.prototype.init = function(annotat
 
   /** @private **/
   this._g2d = canvas.getContext('2d');
-  this._g2d.lineWidth = 1;
+  this._g2d.lineWidth = 3;
  
   /** @private **/
   this._anchor;

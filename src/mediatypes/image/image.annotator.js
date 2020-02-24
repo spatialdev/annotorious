@@ -197,7 +197,7 @@ annotorious.mediatypes.image.ImageAnnotator.prototype.editAnnotation = function(
   
   // Step 2 - find a suitable selector for the shape
   var selector = goog.array.find(this._selectors, function(selector) {
-    return selector.getSupportedShapeType() == annotation.shapes[0].type;
+    return annotation && annotation.shapes && selector.getSupportedShapeType() == annotation.shapes[0].type; // added check on shape object to make extra sure it's ok.
   });
   
   // Step 3 - open annotation in editor

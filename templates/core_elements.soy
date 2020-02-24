@@ -4,13 +4,21 @@
  * A dummy element to be used for annotation popups later on.
  */
 {template .popup}
-<div class="annotorious-popup top-left" style="position:absolute;z-index:1">
-  <div class="annotorious-popup-buttons">
-    <a class="annotorious-popup-button annotorious-popup-button-edit" title="Edit" href="javascript:void(0);">EDIT</a>
-    <a class="annotorious-popup-button annotorious-popup-button-delete" title="Delete" href="javascript:void(0);">DELETE</a>
-  </div>
-  <span class="annotorious-popup-text"></span>
-</div>
+  <div class="annotator-outer annotator-viewer" style="top: 451px; left: 608px;">
+      <ul class="annotator-widget annotator-listing">
+        <li class="annotator-annotation annotator-item">
+        <span class="annotator-controls annotorious-popup-buttons">
+        <button type="button" title="Edit" class="annotator-edit annotorious-popup-button-edit">Edit</button>
+        <button type="button" title="Delete" class="annotator-delete annotorious-popup-button-delete">Delete</button>
+        </span>
+          <div id="popupHeader"></div>
+          <div id="popupComment"></div>
+          <div id="popupCategory"></div>
+          <div id="popupAssigned"></div>
+          <div id="popupTags" class="annotator-tags"></div>
+        </li>
+      </ul>
+    </div>
 {/template}
 
 
@@ -18,13 +26,54 @@
  * A basic annotation edit text form.
  */
 {template .editform}
-<div class="annotorious-editor" style="position:absolute;z-index:1">
-  <form>
-    <textarea class="annotorious-editor-text" placeholder="Add a Comment..." tabindex="1"></textarea>
-    <div class="annotorious-editor-button-container">
-      <a class="annotorious-editor-button annotorious-editor-button-cancel" href="javascript:void(0);" tabindex="3">Cancel</a>
-      <a class="annotorious-editor-button annotorious-editor-button-save" href="javascript:void(0);" tabindex="2">Save</a>
+  <div class="annotator-outer annotator-editor annotator-image-editor" style="top: 508px; left: 485px;">
+      <form class="annotator-widget">
+        <textarea style="display:none" class="annotorious-editor-text" placeholder="Add a Comment..." tabindex="1"></textarea>
+          <legend>Document Annotator</legend>
+          <ul class="annotator-listing">
+              <li class="annotator-item annotator-select">
+                  <div class="form-group">
+                      <label for="categories">Topic</label>
+                      <select class="form-control" id="categories" placeholder="Topic" onchange="updateSubCategorySelectOptions(this, subcategories)">
+                          <option selected value> Select a topic </option>
+                          <option value="0">General</option>
+                          <option value="1">Habitat</option>
+                          <option value="2">Construction</option>
+                      </select>
+                  </div>
+                  <span class="annotator-resize"></span>
+              </li>
+              <li class="annotator-item annotator-select">
+                  <div class="form-group">
+                      <label for="subcategories">Sub-Topic</label>
+                      <select class="form-control" id="subcategories" placeholder="Sub-Topic">
+                          <option selected value> Select a sub-topic </option>
+                          <option value="0">Facility design/features</option>
+                          <option value="1">Location</option>
+                          <option value="2">Event frequentcy</option>
+                      </select>
+                  </div>
+              </li>
+              <li class="annotator-item annotator-select">
+                  <div class="form-group">
+                      <label for="assigned">Assign Reviewer</label>
+                      <select class="form-control" id="assigned" placeholder="Assign">
+                          <option selected value> Assign a reviewer </option>
+                          <option value="0">Mike Leech</option>
+                          <option value="1">Todd Slind</option>
+                          <option value="2">Shawna Paradee</option>
+                      </select>
+                  </div>
+              </li>
+              <li class="annotator-item">
+                  <textarea id="imageComments" placeholder="Comments..."></textarea>
+              </li>
+              <li class="annotator-item">
+                  <input id="tags" placeholder="Add tags here...">
+              </li>
+          </ul>
+          <div id="fileIds" class="annotator-id-fields"></div>
+          <div class="annotorious-editor-button-container"><a class="annotorious-editor-button annotorious-editor-button-cancel" href="javascript:void(0);" tabindex="3">Cancel</a><a class="annotorious-editor-button annotorious-editor-button-save" href="javascript:void(0);" tabindex="2">Save</a></div>
+      </form>
     </div>
-  </form>
-</div>
 {/template}

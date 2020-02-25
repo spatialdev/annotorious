@@ -22,11 +22,11 @@ annotorious.Popup = function (annotator) {
   /** @private **/
   this._text = goog.dom.query('.annotorious-popup-text', this.element)[0];
 
-  this._category = $(this.element).find("#popupCategory")[0];
-  this._assigned = $(this.element).find("#popupAssigned")[0];
-  this._comments = $(this.element).find("#popupComment")[0];
-  this._popup_header = $(this.element).find("#popupHeader")[0];
-  this._tags = $(this.element).find("#popupTags")[0];
+  this._category = $(this.element).find("#popupCategory").get(0);
+  this._assigned = $(this.element).find("#popupAssigned").get(0);
+  this._comments = $(this.element).find("#popupComment").get(0);
+  this._popup_header = $(this.element).find("#popupHeader").get(0);
+  this._tags = $(this.element).find("#popupTags").get(0);
 
   /** @private **/
   this._buttons = goog.dom.query('.annotorious-popup-buttons', this.element)[0];
@@ -198,19 +198,19 @@ annotorious.Popup.prototype.setPosition = function (xy) {
  */
 annotorious.Popup.prototype.setAnnotation = function (annotation) {
   this._currentAnnotation = annotation;
-  if (annotation.text) {
+  //if (annotation.text) {
     //this._text.innerHTML = annotation.text.replace(/\n/g, '<br/>');
-    this._popup_header.innerHTML = '<span class="badge-primary badge badge-pill">' + $annotation$$10$$.order + '</span>';
-    this._comments.innerHTML = '<strong>Comment #: </strong>' + $annotation$$10$$.custom_key || $annotation$$10$$.ref_key;
-    this._category.innerHTML = $annotation$$10$$.category_text ? '<strong>Topic: </strong>' + $annotation$$10$$.category_text : "";
-    this._assigned.innerHTML = $annotation$$10$$.assigned_text ? '<strong>Assigned: </strong>' + $annotation$$10$$.assigned_text : "";
+    this._popup_header.innerHTML = '<span class="badge-primary badge badge-pill">' + annotation.order + '</span>';
+    this._comments.innerHTML = '<strong>Comment #: </strong>' + annotation.custom_key || annotation.ref_key;
+    this._category.innerHTML = annotation.category_text ? '<strong>Topic: </strong>' + annotation.category_text : "";
+    this._assigned.innerHTML = annotation.assigned_text ? '<strong>Assigned: </strong>' + annotation.assigned_text : "";
     var tagHTML = '';
-    $.each($annotation$$10$$.tags, function (idx, tag) {
+    $.each(annotation.tags, function (idx, tag) {
       tagHTML += '<span class="annotator-tag">' + tag + '</span>';
     });
     this._tags.innerHTML = tagHTML;
-  } else
-    this._text.innerHTML = '<span class="annotorious-popup-empty">No comment</span>';
+  //} //else
+    //this._text.innerHTML = '<span class="annotorious-popup-empty">No comment</span>';
 
   if (('editable' in annotation) && annotation.editable == false)
     goog.style.showElement(this._buttons, false);

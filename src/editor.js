@@ -33,6 +33,14 @@ annotorious.Editor = function (annotator) {
   this._textarea = new goog.ui.Textarea('');
 
   /** @private **/
+  this._category = $(this.element).find("#categories").get(0);
+  this._subcategory = $(this.element).find("#subcategories").get(0);
+  this._assigned = $(this.element).find("#assigned").get(0);
+  this._comments = $(this.element).find("#imageComments").get(0);
+  this._fileid = parseInt(annotator._image.id.substr(annotator._image.id.lastIndexOf('-') + 1, annotator._image.id.length), 10);
+  this._tags = $(this.element).find("#tags").get(0);
+
+  /** @private **/
   this._btnCancel = goog.dom.query('.annotorious-editor-button-cancel', this.element)[0];
 
   /** @private **/
@@ -76,18 +84,39 @@ annotorious.Editor = function (annotator) {
  * a DOM element.
  * @param {string | Function} field the field
  */
+var _selectOptions = [];
 annotorious.Editor.prototype.addField = function (field) {
-  var fieldEl = goog.dom.createDom('div', 'annotorious-editor-field');
+  // var fieldEl = goog.dom.createDom('div', 'annotorious-editor-field');
 
-  if (goog.isString(field)) {
-    fieldEl.innerHTML = field;
-  } else if (goog.isFunction(field)) {
-    this._extraFields.push({ el: fieldEl, fn: field });
-  } else if (goog.dom.isElement(field)) {
-    goog.dom.appendChild(fieldEl, field);
+  // if (goog.isString(field)) {
+  //   fieldEl.innerHTML = field;
+  // } else if (goog.isFunction(field)) {
+  //   this._extraFields.push({ el: fieldEl, fn: field });
+  // } else if (goog.dom.isElement(field)) {
+  //   goog.dom.appendChild(fieldEl, field);
+  // }
+
+  // goog.dom.insertSiblingBefore(fieldEl, this._btnContainer);
+
+  if (field.type === "select") {
+    var annotationEditors = $("#" + field.id + ".form-control");
+    _.each(annotationEditors, function (annotationEditor) {
+      // remove all options
+      $(annotationEditor).find('option').remove();
+      // add default selection option
+      $("<option selected value>" + field.default_option + "</option>").appendTo(annotationEditor);
+      _selectOptions = _selectOptions.length > 0 ? _.without(_selectOptions, _.findWhere(_selectOptions, { "name": field.name })) : [];
+      _selectOptions.push({ "name": field.name, "options": field.options });
+      // load each option into the select
+      _.each(field.options, function (option) {
+        $("<option />", { value: option.id, text: option.title }).appendTo(annotationEditor);
+      });
+    });
   }
-
-  goog.dom.insertSiblingBefore(fieldEl, this._btnContainer);
+  else {
+    var wrapper = $(".annotator-image-editor").find(".annotator-id-fields")[0];
+    if (wrapper) { wrapper.innerHTML = field.options; }
+  }
 }
 
 /**
@@ -104,11 +133,11 @@ annotorious.Editor.prototype.open = function (opt_annotation, opt_event) {
   if (opt_annotation) {
     //this._textarea.setValue(opt_annotation.text);
     this._textarea.setContent(String(opt_annotation.text));
-    this._category.value = $opt_annotation$$.category;
-    this._subcategory.value = $opt_annotation$$.subcategory;
-    this._assigned.value = $opt_annotation$$.assigned;
-    this._comments.value = $opt_annotation$$.text;
-    this._tags.value = $opt_annotation$$.tags.join(' ');
+    this._category.value = opt_annotation.category;
+    this._subcategory.value = opt_annotation.subcategory;
+    this._assigned.value = opt_annotation.assigned;
+    this._comments.value = opt_annotation.text;
+    this._tags.value = opt_annotation.tags.join(' ');
     initializeSubCategorySelectOptions(opt_annotation.category_text, opt_annotation.category, opt_annotation.subcategory);
   }
 
@@ -166,46 +195,6 @@ annotorious.Editor.prototype.open = function (opt_annotation, opt_event) {
       subTopicOptions.value = selectedOptionValue;
     }
   }
-  // filter subCategory options based on selected Topic
-  function updateSubCategorySelectOptions(selectedTopic, subcategories) {
-    // get sub-categories select object from DOM
-    // var subTopicOptions = $(this.document.body).find("#subcategories")[0];
-    subcategories.value = '';
-    subcategories.disabled = false;
-    // get the selected topic value
-    var category_id = selectedTopic.selectedOptions[0].value;
-    // get the list of sub-topics from global variable and filter to 
-    // sub-topics for the selected topic
-    var subTopicList = [];
-    // get subtopics from global list of select options
-    var subTopics = _.find(_selectOptions, function (o) { return o.name === 'subtopics'; });
-    // loop through global subtopics
-    _.each(subTopics.options, function (subTopic) {
-      if (subTopic.topic_id === parseInt(category_id)) {
-        subTopicList.push(subTopic);
-      }
-    });
-    console.log("subTopicList", subTopicList);
-    var countVisableOptions = 0;
-    // loop through annotator UIs subtopic select options
-    _.each(subcategories, function (menuOption) {
-      if (_.contains(_.pluck(subTopicList, 'id'), parseInt(menuOption.value))) {
-        console.log("menuOption", menuOption);
-        menuOption.style.display = 'list-item';
-        menuOption.hidden = false;
-        countVisableOptions++;
-      }
-      else {
-        menuOption.style.display = 'none';
-        menuOption.hidden = true;
-      }
-    });
-    if (countVisableOptions === 0) {
-      // disable sub-topics dropdown if there are no sub-topics for selected topic
-      subcategories.disabled = true;
-    }
-  }
-
 
   goog.style.showElement(this.element, true);
   this._textarea.getElement().focus();
@@ -223,13 +212,53 @@ annotorious.Editor.prototype.open = function (opt_annotation, opt_event) {
   this._annotator.fireEvent(annotorious.events.EventType.EDITOR_SHOWN, opt_annotation);
 }
 
+// filter subCategory options based on selected Topic
+annotorious.updateSubCategorySelectOptions = function (selectedTopic, subcategories) {
+  // get sub-categories select object from DOM
+  // var subTopicOptions = $(this.document.body).find("#subcategories")[0];
+  subcategories.value = '';
+  subcategories.disabled = false;
+  // get the selected topic value
+  var category_id = selectedTopic.selectedOptions[0].value;
+  // get the list of sub-topics from global variable and filter to 
+  // sub-topics for the selected topic
+  var subTopicList = [];
+  // get subtopics from global list of select options
+  var subTopics = _.find(_selectOptions, function (o) { return o.name === 'subtopics'; });
+  // loop through global subtopics
+  _.each(subTopics.options, function (subTopic) {
+    if (subTopic.topic_id === parseInt(category_id)) {
+      subTopicList.push(subTopic);
+    }
+  });
+  console.log("subTopicList", subTopicList);
+  var countVisableOptions = 0;
+  // loop through annotator UIs subtopic select options
+  _.each(subcategories, function (menuOption) {
+    if (_.contains(_.pluck(subTopicList, 'id'), parseInt(menuOption.value))) {
+      console.log("menuOption", menuOption);
+      menuOption.style.display = 'list-item';
+      menuOption.hidden = false;
+      countVisableOptions++;
+    }
+    else {
+      menuOption.style.display = 'none';
+      menuOption.hidden = true;
+    }
+  });
+  if (countVisableOptions === 0) {
+    // disable sub-topics dropdown if there are no sub-topics for selected topic
+    subcategories.disabled = true;
+  }
+}
+
 /**
  * Closes the editor.
  */
 annotorious.Editor.prototype.close = function () {
   goog.style.showElement(this.element, false);
   //this._textarea.setValue('');
-  this._textarea.setContent$("");
+  this._textarea.setContent("");
   this._category.value = null;
   this._assigned.value = null;
   this._comments.value = null;
@@ -263,7 +292,6 @@ annotorious.Editor.prototype.getAnnotation = function () {
 
   if (this._current_annotation) {
     this._current_annotation.text = sanitized;
-    this._current_annotation.text = $htmlText$$inline_713_sanitized$$;
     this._current_annotation.category = parseInt(category);
     this._current_annotation.category_text = category_text;
     this._current_annotation.subcategory = parseInt(subcategory);
@@ -274,7 +302,7 @@ annotorious.Editor.prototype.getAnnotation = function () {
     this._current_annotation.tags = parseTags(tags);
   } else {
     this._current_annotation =
-      new annotorious.Annotation(this._item.src, sanitized, this._annotator.getActiveSelector().getShape());
+      new annotorious.Annotation(this._item.src, sanitized, category, category_text, subcategory, subcategory_text, assigned, assigned_text, comments, tags, this._fileid, this._annotator.getActiveSelector().getShape());
   }
 
   return this._current_annotation;

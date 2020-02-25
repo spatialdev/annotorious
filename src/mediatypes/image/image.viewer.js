@@ -252,7 +252,7 @@ annotorious.mediatypes.image.Viewer.prototype._draw = function (shape, highlight
 
   if (shape && selector)
     selector.drawShape(this._g2d, shape, highlight);
-  else
+  else if (shape)
     console.log('WARNING unsupported shape type: ' + shape.type);
 }
 
@@ -274,7 +274,7 @@ annotorious.mediatypes.image.Viewer.prototype.redraw = function () {
     var rect = annotorious.shape.getBoundingRect(shape);
     if (rect) { //making sure it exists first
       var bbox = rect.geometry;
-      this._annotator.popup.show(this._currentAnnotation, new annotorious.shape.geom.Point(bbox.x, bbox.y + bbox.height + 5));
+      this._annotator.popup.show(this._currentAnnotation, new annotorious.shape.geom.Point(bbox.x, bbox.y + 5));
     }
 
     // TODO Orientation check - what if the popup would be outside the viewport?

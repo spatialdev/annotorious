@@ -8,29 +8,29 @@ goog.require('annotorious.events.ui');
  * The default selector: a simple click-and-drag rectangle selection tool.
  * @constructor
  */
-annotorious.plugins.selection.RectDragSelector = function() { }
+annotorious.plugins.selection.RectDragSelector = function () { }
 
 /**
  * Initializes the selector.
  * @param {Element} canvas the canvas to draw on
  * @param {Object} annotator reference to the annotator
  */
-annotorious.plugins.selection.RectDragSelector.prototype.init = function(annotator, canvas) {
+annotorious.plugins.selection.RectDragSelector.prototype.init = function (annotator, canvas) {
   /** @private **/
   this._OUTLINE = '#2e94ba';
 
   /** @private **/
   this._STROKE = '#ffffff';
-  
+
   /** @private **/
   this._FILL = false;
-  
+
   /** @private **/
   this._HI_OUTLINE = '#2e94ba';
 
   /** @private **/
   this._HI_STROKE = '#2e94ba';
-  
+
   /** @private **/
   this._HI_FILL = false;
 
@@ -45,20 +45,20 @@ annotorious.plugins.selection.RectDragSelector.prototype.init = function(annotat
 
   /** @private **/
   this._HI_STROKE_WIDTH = 3.5;
-	
+
   /** @private **/
   this._canvas = canvas;
-  
+
   /** @private **/
   this._annotator = annotator;
 
   /** @private **/
   this._g2d = canvas.getContext('2d');
   this._g2d.lineWidth = 3;
- 
+
   /** @private **/
   this._anchor;
-  
+
   /** @private **/
   this._opposite;
 
@@ -70,23 +70,26 @@ annotorious.plugins.selection.RectDragSelector.prototype.init = function(annotat
 
   /** @private **/
   this._mouseUpListener;
+
+  /** @private **/
+  this._tempShapes = [];
 }
 
 /**
  * Attaches MOUSEUP and MOUSEMOVE listeners to the editing canvas.
  * @private
  */
-annotorious.plugins.selection.RectDragSelector.prototype._attachListeners = function(startPoint) {
-  var self = this;  
+annotorious.plugins.selection.RectDragSelector.prototype._attachListeners = function (startPoint) {
+  var self = this;
   var canvas = this._canvas;
-  
-  this._mouseMoveListener = goog.events.listen(this._canvas, annotorious.events.ui.EventType.MOVE, function(event) {
+
+  this._mouseMoveListener = goog.events.listen(this._canvas, annotorious.events.ui.EventType.MOVE, function (event) {
     var points = annotorious.events.ui.sanitizeCoordinates(event, canvas);
     if (self._enabled) {
       self._opposite = { x: points.x, y: points.y };
 
       self._g2d.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       var width = self._opposite.x - self._anchor.x;
       var height = self._opposite.y - self._anchor.y;
 
@@ -103,18 +106,33 @@ annotorious.plugins.selection.RectDragSelector.prototype._attachListeners = func
     }
   });
 
-  this._mouseUpListener = goog.events.listen(canvas, annotorious.events.ui.EventType.UP, function(event) {
+  this._mouseUpListener = goog.events.listen(canvas, annotorious.events.ui.EventType.UP, function (event) {
     var points = annotorious.events.ui.sanitizeCoordinates(event, canvas);
     var shape = self.getShape();
     event = (event.event_) ? event.event_ : event;
-    
+
+    //if shift is held, allow more brackets to be drawn
     self._enabled = false;
     if (shape) {
       self._detachListeners();
-      self._annotator.fireEvent(annotorious.events.EventType.SELECTION_COMPLETED,
-        { mouseEvent: event, shape: shape, viewportBounds: self.getViewportBounds() }); 
+
+      if (event.shiftKey) {
+        self._annotator.stopSelection(self._original_annotation, true);
+        //shift held down, let's let user draw multiple shapes for this note
+        //store shape for safe keeping
+        self._tempShapes.push(shape);
+        self._annotator.fireEvent(annotorious.events.EventType.SELECTION_CANCELED, { e: event });
+        //need to draw the temp shape on the main view canvas
+      } else {
+        //store all of the temp shapes
+
+        //open editor and remember each shape
+        self._annotator.fireEvent(annotorious.events.EventType.SELECTION_COMPLETED, { mouseEvent: event, shape: shape, viewportBounds: self.getViewportBounds() });
+        //clear the temp shapes for the next note
+        self._tempShapes = [];
+      }
     } else {
-      self._annotator.fireEvent(annotorious.events.EventType.SELECTION_CANCELED);
+      if (!event.shiftKey) self._annotator.fireEvent(annotorious.events.EventType.SELECTION_CANCELED);
 
       // On cancel, we "relay" the selection event to the annotator
       var annotations = self._annotator.getAnnotationsAt(points.x, points.y);
@@ -128,7 +146,7 @@ annotorious.plugins.selection.RectDragSelector.prototype._attachListeners = func
  * Detaches MOUSEUP and MOUSEMOVE listeners from the editing canvas.
  * @private
  */
-annotorious.plugins.selection.RectDragSelector.prototype._detachListeners = function() {
+annotorious.plugins.selection.RectDragSelector.prototype._detachListeners = function () {
   if (this._mouseMoveListener) {
     goog.events.unlistenByKey(this._mouseMoveListener);
     delete this._mouseMoveListener;
@@ -144,7 +162,7 @@ annotorious.plugins.selection.RectDragSelector.prototype._detachListeners = func
  * Selector API method: returns the selector name.
  * @returns the selector name
  */
-annotorious.plugins.selection.RectDragSelector.prototype.getName = function() {
+annotorious.plugins.selection.RectDragSelector.prototype.getName = function () {
   return 'rect_drag';
 }
 
@@ -155,20 +173,20 @@ annotorious.plugins.selection.RectDragSelector.prototype.getName = function() {
  *
  * @return the supported shape type
  */
-annotorious.plugins.selection.RectDragSelector.prototype.getSupportedShapeType = function() {
+annotorious.plugins.selection.RectDragSelector.prototype.getSupportedShapeType = function () {
   return annotorious.shape.ShapeType.RECTANGLE;
 }
 
 /**
  * Sets the properties on this selector.
  */
-annotorious.plugins.selection.RectDragSelector.prototype.setProperties = function(props) {  
+annotorious.plugins.selection.RectDragSelector.prototype.setProperties = function (props) {
   if (props.hasOwnProperty('outline'))
     this._OUTLINE = props['outline'];
 
   if (props.hasOwnProperty('stroke'))
     this._STROKE = props['stroke'];
- 
+
   if (props.hasOwnProperty('fill'))
     this._FILL = props['fill'];
 
@@ -199,7 +217,7 @@ annotorious.plugins.selection.RectDragSelector.prototype.setProperties = functio
  * @param {number} x the X coordinate
  * @param {number} y the Y coordinate
  */
-annotorious.plugins.selection.RectDragSelector.prototype.startSelection = function(x, y) {
+annotorious.plugins.selection.RectDragSelector.prototype.startSelection = function (x, y) {
   var startPoint = {
     x: x,
     y: y
@@ -208,34 +226,37 @@ annotorious.plugins.selection.RectDragSelector.prototype.startSelection = functi
   this._attachListeners(startPoint);
   this._anchor = new annotorious.shape.geom.Point(x, y);
   this._annotator.fireEvent(annotorious.events.EventType.SELECTION_STARTED, {
-    offsetX: x, offsetY: y});
-  
+    offsetX: x, offsetY: y
+  });
+
   goog.style.setStyle(document.body, '-webkit-user-select', 'none');
 }
 
 /**
  * Selector API method: stops the selection.
  */
-annotorious.plugins.selection.RectDragSelector.prototype.stopSelection = function() {
-  this._detachListeners();
-  this._g2d.clearRect(0, 0, this._canvas.width, this._canvas.height);
-  goog.style.setStyle(document.body, '-webkit-user-select', 'auto');
-  delete this._opposite;
+annotorious.plugins.selection.RectDragSelector.prototype.stopSelection = function (keepGraphics) {
+  if (!keepGraphics) {
+    this._detachListeners();
+    this._g2d.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    delete this._opposite;
+    goog.style.setStyle(document.body, '-webkit-user-select', 'auto');
+  }
 }
 
 /**
  * Selector API method: returns the currently edited shape.
  * @return {annotorious.shape.Shape | undefined} the shape
  */
-annotorious.plugins.selection.RectDragSelector.prototype.getShape = function() {
-  if (this._opposite && 
-     (Math.abs(this._opposite.x - this._anchor.x) > 3) && 
-     (Math.abs(this._opposite.y - this._anchor.y) > 3)) {
-       
+annotorious.plugins.selection.RectDragSelector.prototype.getShape = function () {
+  if (this._opposite &&
+    (Math.abs(this._opposite.x - this._anchor.x) > 3) &&
+    (Math.abs(this._opposite.y - this._anchor.y) > 3)) {
+
     var viewportBounds = this.getViewportBounds();
     // var item_anchor = this._annotator.toItemCoordinates({x: viewportBounds.left, y: viewportBounds.top});
     // var item_opposite = this._annotator.toItemCoordinates({x: viewportBounds.right, y: viewportBounds.bottom});
- 
+
     /*
     var rect = new annotorious.shape.geom.Rectangle(
       item_anchor.x,
@@ -260,26 +281,26 @@ annotorious.plugins.selection.RectDragSelector.prototype.getShape = function() {
  * Selector API method: returns the bounds of the selected shape, in viewport (= pixel) coordinates.
  * @returns {Object} the shape viewport bounds
  */
-annotorious.plugins.selection.RectDragSelector.prototype.getViewportBounds = function() {
+annotorious.plugins.selection.RectDragSelector.prototype.getViewportBounds = function () {
   var right, left;
   if (this._opposite.x > this._anchor.x) {
     right = this._opposite.x;
     left = this._anchor.x;
   } else {
     right = this._anchor.x;
-    left = this._opposite.x;    
+    left = this._opposite.x;
   }
-  
+
   var top, bottom;
   if (this._opposite.y > this._anchor.y) {
     top = this._anchor.y;
     bottom = this._opposite.y;
   } else {
     top = this._opposite.y;
-    bottom = this._anchor.y;    
+    bottom = this._anchor.y;
   }
-  
-  return {top: top, right: right, bottom: bottom, left: left};
+
+  return { top: top, right: right, bottom: bottom, left: left };
 }
 
 /**
@@ -288,11 +309,11 @@ annotorious.plugins.selection.RectDragSelector.prototype.getViewportBounds = fun
  * @param {annotorious.shape.Shape} shape the shape to draw
  * @param {boolean=} highlight if true, shape will be drawn highlighted
  */
-annotorious.plugins.selection.RectDragSelector.prototype.drawShape = function(g2d, shape, highlight) {
+annotorious.plugins.selection.RectDragSelector.prototype.drawShape = function (g2d, shape, highlight) {
   var geom, stroke, fill, outline, outline_width, stroke_width;
 
   if (!shape.style) shape.style = {};
-  
+
   if (shape.type == annotorious.shape.ShapeType.RECTANGLE) {
     if (highlight) {
       fill = shape.style.hi_fill || this._HI_FILL;
@@ -312,15 +333,15 @@ annotorious.plugins.selection.RectDragSelector.prototype.drawShape = function(g2
 
     // Outline
     if (outline) {
-        g2d.lineJoin = "round";
-        g2d.lineWidth = outline_width;
-        g2d.strokeStyle = outline;
-        g2d.strokeRect(
-          geom.x + outline_width/2, 
-          geom.y + outline_width/2, 
-          geom.width - outline_width, 
-          geom.height - outline_width
-        );
+      g2d.lineJoin = "round";
+      g2d.lineWidth = outline_width;
+      g2d.strokeStyle = outline;
+      g2d.strokeRect(
+        geom.x + outline_width / 2,
+        geom.y + outline_width / 2,
+        geom.width - outline_width,
+        geom.height - outline_width
+      );
     }
 
     // Stroke
@@ -329,10 +350,10 @@ annotorious.plugins.selection.RectDragSelector.prototype.drawShape = function(g2
       g2d.lineWidth = stroke_width;
       g2d.strokeStyle = stroke;
       g2d.strokeRect(
-        geom.x + outline_width + stroke_width/2, 
-        geom.y + outline_width + stroke_width/2, 
-        geom.width - outline_width*2 - stroke_width, 
-        geom.height - outline_width*2 - stroke_width
+        geom.x + outline_width + stroke_width / 2,
+        geom.y + outline_width + stroke_width / 2,
+        geom.width - outline_width * 2 - stroke_width,
+        geom.height - outline_width * 2 - stroke_width
       );
     }
 
@@ -342,10 +363,10 @@ annotorious.plugins.selection.RectDragSelector.prototype.drawShape = function(g2
       g2d.lineWidth = stroke_width;
       g2d.fillStyle = fill;
       g2d.fillRect(
-        geom.x + outline_width + stroke_width/2, 
-        geom.y + outline_width + stroke_width/2, 
-        geom.width - outline_width*2 - stroke_width, 
-        geom.height - outline_width*2 - stroke_width
+        geom.x + outline_width + stroke_width / 2,
+        geom.y + outline_width + stroke_width / 2,
+        geom.width - outline_width * 2 - stroke_width,
+        geom.height - outline_width * 2 - stroke_width
       );
     }
   }

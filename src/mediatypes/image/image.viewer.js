@@ -108,16 +108,20 @@ annotorious.mediatypes.image.Viewer.prototype.addAnnotation = function (annotati
   this._annotations.push(annotation);
 
   // The viewer always operates in pixel coordinates for efficiency reasons
-  var shape = annotation.shapes[0];
-  if (shape.units == annotorious.shape.Units.PIXEL) {
-    this._shapes[annotorious.shape.hashCode(annotation.shapes[0])] = shape;
-  } else {
-    var self = this;
-    var viewportShape = annotorious.shape.transform(shape, function (xy) {
-      return self._annotator.fromItemCoordinates(xy);
-    });
-    this._shapes[annotorious.shape.hashCode(annotation.shapes[0])] = viewportShape;
-  }
+  //var shape = annotation.shapes[0];
+  //updating to handle multiple shapes per comment
+  annotation.shapes.forEach(shape => {
+    if (shape.units == annotorious.shape.Units.PIXEL) {
+      this._shapes[annotorious.shape.hashCode(shape)] = shape;
+    } else {
+      var self = this;
+      var viewportShape = annotorious.shape.transform(shape, function (xy) {
+        return self._annotator.fromItemCoordinates(xy);
+      });
+      this._shapes[annotorious.shape.hashCode(shape)] = viewportShape;
+    }
+  })
+
 
   this.redraw();
 }
@@ -264,19 +268,23 @@ annotorious.mediatypes.image.Viewer.prototype.redraw = function () {
 
   var self = this;
   goog.array.forEach(this._annotations, function (annotation) {
-    if (annotation != self._currentAnnotation)
-      self._draw(self._shapes[annotorious.shape.hashCode(annotation.shapes[0])]);
+    if (annotation != self._currentAnnotation) {
+      goog.array.forEach(annotation.shapes, function (shape) {
+        self._draw(self._shapes[annotorious.shape.hashCode(shape)]);
+      });
+    }
   });
 
-  if (this._currentAnnotation) {
-    var shape = this._shapes[annotorious.shape.hashCode(this._currentAnnotation.shapes[0])];
-    this._draw(shape, true);
-    var rect = annotorious.shape.getBoundingRect(shape);
-    if (rect) { //making sure it exists first
-      var bbox = rect.geometry;
-      this._annotator.popup.show(this._currentAnnotation, new annotorious.shape.geom.Point(bbox.x, bbox.y + 5));
-    }
-
+  if (this._currentAnnotation && this._shapes) {
+    goog.array.forEach(this._currentAnnotation.shapes, function (curShape) {
+      var shape = self._shapes[annotorious.shape.hashCode(curShape)];
+      self._draw(shape, true);
+      var rect = annotorious.shape.getBoundingRect(shape);
+      if (rect) { //making sure it exists first
+        var bbox = rect.geometry;
+        self._annotator.popup.show(self._currentAnnotation, new annotorious.shape.geom.Point(bbox.x, bbox.y + 5));
+      }
+    });
     // TODO Orientation check - what if the popup would be outside the viewport?
   }
 }

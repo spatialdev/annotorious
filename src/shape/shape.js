@@ -53,7 +53,7 @@ annotorious.shape.Units = {
  * @return {boolean} true if the point intersects the shape
  */
 annotorious.shape.intersects = function(shape, px, py) {
-  if (shape.type == annotorious.shape.ShapeType.RECTANGLE) {
+  if (shape && shape.type == annotorious.shape.ShapeType.RECTANGLE) {
     if (px < shape.geometry.x)
       return false;
 
@@ -67,7 +67,7 @@ annotorious.shape.intersects = function(shape, px, py) {
       return false;
     
     return true;
-  } else if (shape.type == annotorious.shape.ShapeType.POLYGON) {
+  } else if (shape && shape.type == annotorious.shape.ShapeType.POLYGON) {
     var points = shape.geometry.points;
     var inside = false;
 

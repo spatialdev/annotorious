@@ -106,9 +106,9 @@ annotorious.shape.getSize = function(shape) {
  * @return {annotorious.shape.Shape | undefined} the bounding rectangle
  */
 annotorious.shape.getBoundingRect = function(shape) {
-  if (shape.type == annotorious.shape.ShapeType.RECTANGLE) {
+  if (shape && shape.type == annotorious.shape.ShapeType.RECTANGLE) {
     return shape;
-  } else if (shape.type == annotorious.shape.ShapeType.POLYGON) {
+  } else if (shape && shape.type == annotorious.shape.ShapeType.POLYGON) {
     var points = shape.geometry.points;
 
     var left = points[0].x;

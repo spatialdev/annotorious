@@ -70,9 +70,6 @@ annotorious.plugins.selection.RectDragSelector.prototype.init = function (annota
 
   /** @private **/
   this._mouseUpListener;
-
-  /** @private **/
-  this._tempShapes = [];
 }
 
 /**
@@ -115,25 +112,10 @@ annotorious.plugins.selection.RectDragSelector.prototype._attachListeners = func
     self._enabled = false;
     if (shape) {
       self._detachListeners();
-
-      if (event.shiftKey) {
-        self._annotator.stopSelection(self._original_annotation, true);
-        //shift held down, let's let user draw multiple shapes for this note
-        //store shape for safe keeping
-        self._tempShapes.push(shape);
-        self._annotator.fireEvent(annotorious.events.EventType.SELECTION_CANCELED, { e: event });
-        //need to draw the temp shape on the main view canvas
-      } else {
-        //store all of the temp shapes
-
-        //open editor and remember each shape
-        self._annotator.fireEvent(annotorious.events.EventType.SELECTION_COMPLETED, { mouseEvent: event, shape: shape, viewportBounds: self.getViewportBounds() });
-        //clear the temp shapes for the next note
-        self._tempShapes = [];
-      }
+      //open editor and remember each shape //adding file of
+      self._annotator.fireEvent(annotorious.events.EventType.SELECTION_COMPLETED, { mouseEvent: event, shape: shape, viewportBounds: self.getViewportBounds(), file_id: parseInt(self._annotator._image.getAttribute("file")) });
     } else {
-      if (!event.shiftKey) self._annotator.fireEvent(annotorious.events.EventType.SELECTION_CANCELED);
-
+      self._annotator.fireEvent(annotorious.events.EventType.SELECTION_CANCELED);
       // On cancel, we "relay" the selection event to the annotator
       var annotations = self._annotator.getAnnotationsAt(points.x, points.y);
       if (annotations.length > 0)

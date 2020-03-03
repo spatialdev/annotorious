@@ -18,14 +18,13 @@ annotorious.Annotorious.prototype['setActiveSelector'] = annotorious.Annotorious
 annotorious.Annotorious.prototype['setProperties'] = annotorious.Annotorious.prototype.setProperties;
 annotorious.Annotorious.prototype['showAnnotations'] = annotorious.Annotorious.prototype.showAnnotations;
 annotorious.Annotorious.prototype['showSelectionWidget'] = annotorious.Annotorious.prototype.showSelectionWidget;
-
 /** Sets up the plugin namespace */
 if (!window['annotorious'])
   window['annotorious'] = {};
 
 if (!window['annotorious']['plugin'])
   window['annotorious']['plugin'] = {}
-  
+
 /** Geometry API exports **/
 if (!window['annotorious']['geometry']) {
   window['annotorious']['geometry'] = {};

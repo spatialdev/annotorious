@@ -109,8 +109,8 @@ annotorious.mediatypes.image.Viewer.prototype.addAnnotation = function (annotati
 
   // The viewer always operates in pixel coordinates for efficiency reasons
   //var shape = annotation.shapes[0];
-  //updating to handle multiple shapes per comment
-  annotation.shapes.forEach(shape => {
+  //updating to handle multiple shapes per comment (but only where the shape and the comment )
+  annotation.shapes.filter(function (shape) { return !shape.file_id || shape.file_id === annotation.file_source }).forEach(shape => {
     if (shape.units == annotorious.shape.Units.PIXEL) {
       this._shapes[annotorious.shape.hashCode(shape)] = shape;
     } else {
@@ -161,6 +161,9 @@ annotorious.mediatypes.image.Viewer.prototype.highlightAnnotation = function (op
 
   this.redraw();
   this._eventsEnabled = true;
+
+  //special case for multipage shapes - keeps popup from showing more than once
+  //if (opt_annotation && opt_annotation.source_id) this._annotator.popup.element.hidden = true
 }
 
 /**

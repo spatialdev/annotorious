@@ -200,7 +200,7 @@ annotorious.Popup.prototype.setAnnotation = function (annotation) {
   this._currentAnnotation = annotation;
   //if (annotation.text) {
     //this._text.innerHTML = annotation.text.replace(/\n/g, '<br/>');
-    this._popup_header.innerHTML = '<span class="badge-primary badge badge-pill">' + annotation.order + '</span>';
+    this._popup_header.innerHTML = '<span class="badge-primary badge badge-pill">' + annotation.relNumber || annotation.order + '</span>';
     this._comments.innerHTML = '<strong>Comment #: </strong>' + annotation.custom_key || annotation.ref_key;
     this._category.innerHTML = annotation.category_text ? '<strong>Topic: </strong>' + annotation.category_text : "";
     this._assigned.innerHTML = annotation.assigned_text ? '<strong>Assigned: </strong>' + annotation.assigned_text : "";

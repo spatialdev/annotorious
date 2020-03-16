@@ -110,7 +110,10 @@ annotorious.mediatypes.image.Viewer.prototype.addAnnotation = function (annotati
   // The viewer always operates in pixel coordinates for efficiency reasons
   //var shape = annotation.shapes[0];
   //updating to handle multiple shapes per comment (but only where the shape and the comment )
-  annotation.shapes.filter(function (shape) { return !shape.file_id || shape.file_id === annotation.file_source }).forEach(shape => {
+  //!shape.file_id ---> old single method
+  //---> new single method
+  //shape.file_id === annotation.file_source ---> multi-page method
+  annotation.shapes.filter(function (shape) { return !shape.file_id || (!annotation.file_source && shape.file_id === annotation.file) || shape.file_id === annotation.file_source }).forEach(shape => {
     if (shape.units == annotorious.shape.Units.PIXEL) {
       this._shapes[annotorious.shape.hashCode(shape)] = shape;
     } else {
